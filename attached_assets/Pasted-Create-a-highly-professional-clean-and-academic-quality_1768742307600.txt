@@ -1,0 +1,132 @@
+Create a highly professional, clean, and academic-quality user interface
+for a University Library Management System using React.
+
+This project is for a university Web Programming Lab evaluation, so the design
+must prioritize clarity, structure, usability, and documentation readiness.
+
+PROJECT PURPOSE:
+A university-focused Library Management System for managing books, students,
+fees, discounts, and feedback with a simple but professional interface.
+
+TECH STACK (UI SCOPE):
+- Frontend: React (Vite)
+- Styling: Tailwind CSS only
+- Backend exists but is intentionally simple (Node + Express)
+- No Firebase assumptions
+- UI must be REST API friendly
+
+DESIGN PRINCIPLES:
+- Professional academic look
+- Minimalist and structured layout
+- Neutral color palette (white, gray, soft blue)
+- High readability typography
+- Rounded cards with subtle shadows
+- No flashy animations
+- Smooth hover and focus states only
+- Screenshot-ready for academic PDF submission
+
+APPLICATION PAGES:
+
+1. AUTHENTICATION
+- Login page:
+  - Email and password fields
+  - Clear validation messages
+  - Clean centered card layout
+- Register page:
+  - Name, email, password
+  - Simple form flow
+
+2. MAIN DASHBOARD
+- Fixed top navigation bar:
+  - Application name
+  - Logged-in user info
+  - Logout button
+- Dashboard cards:
+  - Total books
+  - Issued books
+  - Available books
+  - Total students
+- Grid-based layout with consistent spacing
+
+3. BOOK MANAGEMENT (CORE CRUD)
+- Add book page:
+  - Book title
+  - Author
+  - Category
+  - Quantity
+- Book list view:
+  - Table-based layout
+  - Columns: Title, Author, Category, Quantity, Actions
+- Edit and delete actions with confirmation
+- Clear success and error messages
+
+4. ISSUE & RETURN MODULE
+- Issue book page:
+  - Select student
+  - Select book
+  - Issue date and return date
+- Return book page:
+  - List of issued books
+  - Return confirmation state
+
+5. CALENDAR VIEW
+- Simple academic calendar
+- Highlight:
+  - Return deadlines
+  - Fine-related dates
+- Clean grid calendar without complex scheduling
+
+6. FEE CALCULATION PAGE
+- Library or tuition fee calculation
+- Input fields:
+  - Base fee
+  - Late fine
+- Output:
+  - Total payable amount
+- Clear calculation summary
+
+7. DISCOUNT MANAGEMENT
+- Discount creation:
+  - Title
+  - Percentage
+  - Validity date
+- Display active discounts in card format
+- Professional and readable layout
+
+8. FEEDBACK PAGE
+- Feedback form:
+  - Name
+  - Email
+  - Message
+- Submit confirmation message
+- UI implies admin email notification
+
+9. ABOUT / UNIVERSITY INFO
+- University details
+- Purpose of the system
+- Academic usage disclaimer
+
+UX & UI REQUIREMENTS:
+- Consistent spacing and alignment
+- Clear typography hierarchy
+- Accessible color contrast
+- Responsive (desktop-first, mobile-friendly)
+- Simple loading, success, and error states
+- Reusable components (Navbar, Card, Table, Button)
+
+CODE QUALITY EXPECTATIONS:
+- Clean React component structure
+- Readable JSX
+- Tailwind utility classes used consistently
+- No hardcoded fake backend logic
+- Easy to integrate backend APIs later
+
+FINAL DESIGN GOAL:
+The interface should look professional, simple, and academically appropriate —
+something a university instructor can easily understand, evaluate, and approve.
+
+Avoid:
+- Over-designed SaaS layouts
+- Heavy animations
+- Firebase-based UI assumptions
+- Visual clutter
