@@ -1,13 +1,23 @@
-
 import { db } from "./db";
-import { 
-  users, books, transactions, discounts, feedbacks,
-  type User, type InsertUser, type Book, type InsertBook,
-  type Transaction, type InsertTransaction, type Discount, 
-  type InsertDiscount, type Feedback, type InsertFeedback,
-  type BookStats
+import {
+  users,
+  books,
+  transactions,
+  discounts,
+  feedbacks,
+  type User,
+  type InsertUser,
+  type Book,
+  type InsertBook,
+  type Transaction,
+  type InsertTransaction,
+  type Discount,
+  type InsertDiscount,
+  type Feedback,
+  type InsertFeedback,
+  type BookStats,
 } from "@shared/schema";
-import { eq, count, sql, desc, and } from "drizzle-orm";
+import { eq, count, sql, desc } from "drizzle-orm";
 
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -18,32 +28,33 @@ const PostgresSessionStore = connectPg(session);
 export interface IStorage {
   sessionStore: session.Store;
 
-  // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getStudents(): Promise<User[]>;
 
-  // Books
   getBooks(): Promise<Book[]>;
   getBook(id: number): Promise<Book | undefined>;
   createBook(book: InsertBook): Promise<Book>;
   updateBook(id: number, book: Partial<InsertBook>): Promise<Book | undefined>;
   deleteBook(id: number): Promise<void>;
-  
-  // Transactions
-  getTransactions(): Promise<(Transaction & { book: Book, user: User })[]>;
-  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
-  returnTransaction(id: number): Promise<Transaction | undefined>;
-  
-  // Stats
+
+  // 🔥 IMPORTANT
+  getTransactions(): Promise<
+    { transaction: Transaction; book: Book; user: User }[]
+  >;
+  createTransaction(
+    transaction: InsertTransaction
+  ): Promise<{ transaction: Transaction; book: Book; user: User }>;
+  returnTransaction(
+    id: number
+  ): Promise<{ transaction: Transaction; book: Book; user: User } | undefined>;
+
   getStats(): Promise<BookStats>;
 
-  // Discounts
   getDiscounts(): Promise<Discount[]>;
   createDiscount(discount: InsertDiscount): Promise<Discount>;
 
-  // Feedback
   createFeedback(feedback: InsertFeedback): Promise<Feedback>;
 }
 
@@ -57,50 +68,58 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: number) {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
+  async getUserByEmail(email: string) {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: InsertUser) {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
-  async getStudents(): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.role, "student"));
+  async getStudents() {
+    return db.select().from(users).where(eq(users.role, "student"));
   }
 
-  async getBooks(): Promise<Book[]> {
-    return await db.select().from(books).orderBy(desc(books.createdAt));
+  async getBooks() {
+    return db.select().from(books).orderBy(desc(books.createdAt));
   }
 
-  async getBook(id: number): Promise<Book | undefined> {
+  async getBook(id: number) {
     const [book] = await db.select().from(books).where(eq(books.id, id));
     return book;
   }
 
-  async createBook(insertBook: InsertBook): Promise<Book> {
+  async createBook(insertBook: InsertBook) {
     const [book] = await db.insert(books).values(insertBook).returning();
     return book;
   }
 
-  async updateBook(id: number, updates: Partial<InsertBook>): Promise<Book | undefined> {
-    const [book] = await db.update(books).set(updates).where(eq(books.id, id)).returning();
+  async updateBook(id: number, updates: Partial<InsertBook>) {
+    const [book] = await db
+      .update(books)
+      .set(updates)
+      .where(eq(books.id, id))
+      .returning();
     return book;
   }
 
-  async deleteBook(id: number): Promise<void> {
+  async deleteBook(id: number) {
     await db.delete(books).where(eq(books.id, id));
   }
 
-  async getTransactions(): Promise<(Transaction & { book: Book, user: User })[]> {
-    const rows = await db
+  /* =========================
+     TRANSACTIONS (FIXED)
+     ========================= */
+
+  async getTransactions() {
+    return db
       .select({
         transaction: transactions,
         book: books,
@@ -110,45 +129,75 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(books, eq(transactions.bookId, books.id))
       .innerJoin(users, eq(transactions.userId, users.id))
       .orderBy(desc(transactions.issueDate));
-      
-    return rows.map(r => ({ ...r.transaction, book: r.book, user: r.user }));
   }
 
-  async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
-    return await db.transaction(async (tx) => {
-      // Create transaction
-      const [t] = await tx.insert(transactions).values(insertTransaction).returning();
-      
-      // Decrease available book quantity
-      await tx.update(books)
+  async createTransaction(insertTransaction: InsertTransaction) {
+    return db.transaction(async (tx) => {
+      // 1️⃣ Insert transaction
+      const [created] = await tx
+        .insert(transactions)
+        .values({
+          ...insertTransaction,
+          status: "issued",
+        })
+        .returning();
+
+      // 2️⃣ Update book availability
+      await tx
+        .update(books)
         .set({ available: sql`${books.available} - 1` })
         .where(eq(books.id, insertTransaction.bookId));
-        
-      return t;
+
+      // 3️⃣ RETURN JOINED OBJECT (🔥 CRITICAL FIX)
+      const [row] = await tx
+        .select({
+          transaction: transactions,
+          book: books,
+          user: users,
+        })
+        .from(transactions)
+        .innerJoin(books, eq(transactions.bookId, books.id))
+        .innerJoin(users, eq(transactions.userId, users.id))
+        .where(eq(transactions.id, created.id));
+
+      return row;
     });
   }
 
-  async returnTransaction(id: number): Promise<Transaction | undefined> {
-    return await db.transaction(async (tx) => {
-      const [t] = await tx
+  async returnTransaction(id: number) {
+    return db.transaction(async (tx) => {
+      const [updated] = await tx
         .update(transactions)
-        .set({ 
+        .set({
           status: "returned",
-          returnDate: new Date()
+          returnDate: new Date(),
         })
         .where(eq(transactions.id, id))
         .returning();
-        
-      if (t) {
-        // Increase available book quantity
-        await tx.update(books)
-          .set({ available: sql`${books.available} + 1` })
-          .where(eq(books.id, t.bookId));
-      }
-      
-      return t;
+
+      if (!updated) return undefined;
+
+      await tx
+        .update(books)
+        .set({ available: sql`${books.available} + 1` })
+        .where(eq(books.id, updated.bookId));
+
+      const [row] = await tx
+        .select({
+          transaction: transactions,
+          book: books,
+          user: users,
+        })
+        .from(transactions)
+        .innerJoin(books, eq(transactions.bookId, books.id))
+        .innerJoin(users, eq(transactions.userId, users.id))
+        .where(eq(transactions.id, updated.id));
+
+      return row;
     });
   }
+
+  /* ========================= */
 
   async getStats(): Promise<BookStats> {
     const [bookStats] = await db
@@ -157,7 +206,7 @@ export class DatabaseStorage implements IStorage {
         available: sql<number>`sum(${books.available})`,
       })
       .from(books);
-      
+
     const [studentStats] = await db
       .select({ count: count() })
       .from(users)
@@ -165,7 +214,7 @@ export class DatabaseStorage implements IStorage {
 
     const totalBooks = Number(bookStats?.total || 0);
     const availableBooks = Number(bookStats?.available || 0);
-    
+
     return {
       totalBooks,
       availableBooks,
@@ -174,17 +223,23 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async getDiscounts(): Promise<Discount[]> {
-    return await db.select().from(discounts).orderBy(desc(discounts.validUntil));
+  async getDiscounts() {
+    return db.select().from(discounts).orderBy(desc(discounts.validUntil));
   }
 
-  async createDiscount(insertDiscount: InsertDiscount): Promise<Discount> {
-    const [discount] = await db.insert(discounts).values(insertDiscount).returning();
+  async createDiscount(insertDiscount: InsertDiscount) {
+    const [discount] = await db
+      .insert(discounts)
+      .values(insertDiscount)
+      .returning();
     return discount;
   }
 
-  async createFeedback(insertFeedback: InsertFeedback): Promise<Feedback> {
-    const [feedback] = await db.insert(feedbacks).values(insertFeedback).returning();
+  async createFeedback(insertFeedback: InsertFeedback) {
+    const [feedback] = await db
+      .insert(feedbacks)
+      .values(insertFeedback)
+      .returning();
     return feedback;
   }
 }

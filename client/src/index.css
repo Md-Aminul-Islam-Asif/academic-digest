@@ -4,8 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   Theme Variables
+   ========================= */
 :root {
-  /* Academic/Professional Palette - Soft Blue & Clean Gray */
   --background: 210 20% 98%;
   --foreground: 222 47% 11%;
   
@@ -29,16 +31,20 @@
   --ring: 221 83% 53%;
   
   --radius: 0.5rem;
-  
-  /* Custom Fonts */
+
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Playfair Display', serif;
 }
 
+/* =========================
+   Base Styles
+   ========================= */
 @layer base {
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -47,7 +53,43 @@
   }
 }
 
-/* Custom scrollbar for academic feel */
+/* =========================
+   BACKGROUND IMAGE (VISIBLE)
+   ========================= */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background-image: url("/src/assets/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✅ balanced visibility */
+  filter: brightness(0.6) blur(1px);
+  opacity: 0.65;
+
+  z-index: -2;
+}
+
+/* =========================
+   SOFT WHITE OVERLAY
+   ========================= */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  /* ✅ readable but not hiding background */
+  background: rgba(255, 255, 255, 0.6);
+
+  z-index: -1;
+}
+
+/* =========================
+   Scrollbar
+   ========================= */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -61,12 +103,25 @@
   @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
 }
 
-/* Card hover effects */
+/* =========================
+   Cards & Glass Effects
+   ========================= */
 .hover-card {
-  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-border/50 bg-card;
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-border/50;
 }
 
-/* Glass effect for navigation */
+/* MAIN CONTENT CARD */
+.glass-card {
+  @apply bg-white/95 border border-border/60 shadow-xl;
+}
+
+/* =========================
+   Navigation & Footer
+   ========================= */
 .glass-nav {
-  @apply bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50;
+  @apply bg-white/95 border-b border-border/60 sticky top-0 z-50;
+}
+
+.glass-footer {
+  @apply bg-white/95 border-t border-border/60;
 }

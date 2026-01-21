@@ -1,20 +1,24 @@
+// ✅ shared/routes.ts  (FINAL)
 
 import { z } from "zod";
-import { 
-  insertUserSchema, 
-  insertBookSchema, 
-  insertTransactionSchema, 
-  insertDiscountSchema, 
+import {
+  insertUserSchema,
+  insertBookSchema,
+  insertTransactionSchema,
+  insertDiscountSchema,
   insertFeedbackSchema,
   users,
   books,
   transactions,
   discounts,
-  feedbacks
+  feedbacks,
 } from "./schema";
 
 export * from "./schema";
 
+/* =========================
+   Error Schemas
+   ========================= */
 export const errorSchemas = {
   validation: z.object({
     message: z.string(),
@@ -31,13 +35,16 @@ export const errorSchemas = {
   }),
 };
 
+/* =========================
+   API CONTRACT
+   ========================= */
 export const api = {
   auth: {
     login: {
       method: "POST" as const,
       path: "/api/auth/login",
       input: z.object({
-        username: z.string(), // Passport local uses username field by default, we'll map email to it
+        username: z.string(),
         password: z.string(),
       }),
       responses: {
@@ -57,9 +64,7 @@ export const api = {
     logout: {
       method: "POST" as const,
       path: "/api/auth/logout",
-      responses: {
-        200: z.void(),
-      },
+      responses: { 200: z.void() },
     },
     me: {
       method: "GET" as const,
@@ -70,6 +75,7 @@ export const api = {
       },
     },
   },
+
   stats: {
     get: {
       method: "GET" as const,
@@ -84,6 +90,7 @@ export const api = {
       },
     },
   },
+
   books: {
     list: {
       method: "GET" as const,
@@ -119,6 +126,7 @@ export const api = {
       },
     },
   },
+
   students: {
     list: {
       method: "GET" as const,
@@ -128,22 +136,29 @@ export const api = {
       },
     },
   },
+
   transactions: {
     list: {
       method: "GET" as const,
       path: "/api/transactions",
       responses: {
-        200: z.array(z.object({
-          transaction: z.custom<typeof transactions.$inferSelect>(),
-          book: z.custom<typeof books.$inferSelect>(),
-          user: z.custom<typeof users.$inferSelect>(),
-        })),
+        200: z.array(
+          z.object({
+            transaction: z.custom<typeof transactions.$inferSelect>(),
+            book: z.custom<typeof books.$inferSelect>(),
+            user: z.custom<typeof users.$inferSelect>(),
+          })
+        ),
       },
     },
     issue: {
       method: "POST" as const,
       path: "/api/transactions/issue",
-      input: insertTransactionSchema.omit({ status: true }),
+      input: z.object({
+        userId: z.coerce.number(),
+        bookId: z.coerce.number(),
+        dueDate: z.coerce.date(), // 🔥 FIX
+      }),
       responses: {
         201: z.custom<typeof transactions.$inferSelect>(),
         400: errorSchemas.validation,
@@ -158,6 +173,7 @@ export const api = {
       },
     },
   },
+
   discounts: {
     list: {
       method: "GET" as const,
@@ -176,6 +192,7 @@ export const api = {
       },
     },
   },
+
   feedbacks: {
     create: {
       method: "POST" as const,
@@ -189,14 +206,18 @@ export const api = {
   },
 };
 
-export function buildUrl(path: string, params?: Record<string, string | number>): string {
+/* =========================
+   URL Builder
+   ========================= */
+export function buildUrl(
+  path: string,
+  params?: Record<string, string | number>
+) {
   let url = path;
   if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (url.includes(`:${key}`)) {
-        url = url.replace(`:${key}`, String(value));
-      }
-    });
+    for (const [k, v] of Object.entries(params)) {
+      url = url.replace(`:${k}`, String(v));
+    }
   }
   return url;
 }

@@ -1,6 +1,27 @@
-node_modules
-dist
+# Environment files
+.env
+.env.*
+server/.env
+client/.env
+
+# Node
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.out/
+.vercel/
+
+# Local / temp
+.local/
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Assets (if not needed)
+client/src/assets/

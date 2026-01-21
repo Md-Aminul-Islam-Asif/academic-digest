@@ -1,23 +1,35 @@
-
-import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  date,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// === USERS ===
+/* =========================
+   USERS
+   ========================= */
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
-  role: text("role").notNull().default("student"), // 'admin' | 'student'
-  studentId: text("student_id"), // Optional, for students
+  role: text("role").notNull().default("student"), // admin | student
+  studentId: text("student_id"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users)
+  .omit({ id: true, createdAt: true });
 
-// === BOOKS ===
+/* =========================
+   BOOKS
+   ========================= */
 export const books = pgTable("books", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -28,9 +40,12 @@ export const books = pgTable("books", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertBookSchema = createInsertSchema(books).omit({ id: true, createdAt: true });
+export const insertBookSchema = createInsertSchema(books)
+  .omit({ id: true, createdAt: true });
 
-// === TRANSACTIONS (ISSUES) ===
+/* =========================
+   TRANSACTIONS
+   ========================= */
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
@@ -38,12 +53,25 @@ export const transactions = pgTable("transactions", {
   issueDate: timestamp("issue_date").notNull().defaultNow(),
   dueDate: timestamp("due_date").notNull(),
   returnDate: timestamp("return_date"),
-  status: text("status").notNull().default("issued"), // 'issued' | 'returned'
+  status: text("status").notNull().default("issued"), // issued | returned
 });
 
-export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, returnDate: true });
+/**
+ * 🔥 CRITICAL FIX HERE
+ * z.coerce.date() allows string → Date
+ */
+export const insertTransactionSchema = createInsertSchema(transactions, {
+  issueDate: z.coerce.date().optional(),
+  dueDate: z.coerce.date(),
+}).omit({
+  id: true,
+  returnDate: true,
+  status: true,
+});
 
-// === DISCOUNTS ===
+/* =========================
+   DISCOUNTS
+   ========================= */
 export const discounts = pgTable("discounts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -52,9 +80,12 @@ export const discounts = pgTable("discounts", {
   active: boolean("active").default(true),
 });
 
-export const insertDiscountSchema = createInsertSchema(discounts).omit({ id: true });
+export const insertDiscountSchema = createInsertSchema(discounts)
+  .omit({ id: true });
 
-// === FEEDBACK ===
+/* =========================
+   FEEDBACK
+   ========================= */
 export const feedbacks = pgTable("feedbacks", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -63,9 +94,12 @@ export const feedbacks = pgTable("feedbacks", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertFeedbackSchema = createInsertSchema(feedbacks).omit({ id: true, createdAt: true });
+export const insertFeedbackSchema = createInsertSchema(feedbacks)
+  .omit({ id: true, createdAt: true });
 
-// === RELATIONS ===
+/* =========================
+   RELATIONS
+   ========================= */
 export const transactionsRelations = relations(transactions, ({ one }) => ({
   user: one(users, {
     fields: [transactions.userId],
@@ -77,7 +111,9 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   }),
 }));
 
-// === TYPES ===
+/* =========================
+   TYPES
+   ========================= */
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
@@ -93,7 +129,9 @@ export type InsertDiscount = z.infer<typeof insertDiscountSchema>;
 export type Feedback = typeof feedbacks.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 
-// API Specific Types
+/* =========================
+   API TYPES
+   ========================= */
 export type LoginRequest = Pick<InsertUser, "email" | "password">;
 export type RegisterRequest = InsertUser;
 
