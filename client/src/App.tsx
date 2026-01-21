@@ -6,20 +6,18 @@ import { Loader2 } from "lucide-react";
 
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "./components/ui_fixed/toaster";
+import { useAuth } from "./hooks/use-auth";
 
-
-import { useAuth } from "@/hooks/use-auth";
-
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import Dashboard from "@/pages/Dashboard";
-import Books from "@/pages/Books";
-import Transactions from "@/pages/Transactions";
-import Fees from "@/pages/Fees";
-import Discounts from "@/pages/Discounts";
-import Feedback from "@/pages/Feedback";
-import CalendarView from "@/pages/CalendarView";
-import NotFound from "@/pages/not-found";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import Books from "./pages/Books";
+import Transactions from "./pages/Transactions";
+import Fees from "./pages/Fees";
+import Discounts from "./pages/Discounts";
+import Feedback from "./pages/Feedback";
+import CalendarView from "./pages/CalendarView";
+import NotFound from "./pages/not-found";
 
 function ProtectedRoute({
   component: Component,
