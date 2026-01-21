@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type LoginRequest, type RegisterRequest } from "@shared/routes";
 import { useLocation } from "wouter";
+
+// ✅ correct relative import
+import {
+  api,
+  type LoginRequest,
+  type RegisterRequest,
+} from "../shared/routes";
 
 export function useAuth() {
   const queryClient = useQueryClient();
@@ -25,11 +31,12 @@ export function useAuth() {
         body: JSON.stringify(credentials),
         credentials: "include",
       });
-      
+
       if (!res.ok) {
         if (res.status === 401) throw new Error("Invalid credentials");
         throw new Error("Login failed");
       }
+
       return api.auth.login.responses[200].parse(await res.json());
     },
     onSuccess: (data) => {
@@ -46,14 +53,17 @@ export function useAuth() {
         body: JSON.stringify(data),
         credentials: "include",
       });
-      
+
       if (!res.ok) {
         if (res.status === 400) {
-          const error = api.auth.register.responses[400].parse(await res.json());
+          const error = api.auth.register.responses[400].parse(
+            await res.json()
+          );
           throw new Error(error.message);
         }
         throw new Error("Registration failed");
       }
+
       return api.auth.register.responses[201].parse(await res.json());
     },
     onSuccess: () => {

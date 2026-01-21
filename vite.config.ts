@@ -7,28 +7,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  // 👇 Vite project root
+  // Vite root = client
   root: path.resolve(__dirname, "client"),
 
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
 
-  // 👇 Path aliases (MATCHES root = client)
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client/src"),
-      "@shared": path.resolve(__dirname, "shared"),
+      "@shared": path.resolve(__dirname, "client/src/shared"), // ✅ FIX
     },
   },
 
-  // 👇 Build output (Vercel-safe)
   build: {
-    outDir: path.resolve(__dirname, "dist"),
+    outDir: path.resolve(__dirname, "dist/public"), // ✅ recommended
     emptyOutDir: true,
   },
 
-  // 👇 Local dev only (Vercel ignores this)
   server: {
     proxy: {
       "/api": {
