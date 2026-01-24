@@ -1,5 +1,7 @@
 import { Shell } from "@/components/layout/shell";
-import { useCreateFeedback } from "@/hooks/use-misc";
+import { useCreateFeedback } from "../hooks/use-misc";
+import { useToast } from "../hooks/use-toast";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertFeedbackSchema, type InsertFeedback } from "../shared/routes";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+
 import { motion } from "framer-motion";
 
 export default function Feedback() {
