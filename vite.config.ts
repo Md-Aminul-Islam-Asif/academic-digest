@@ -7,7 +7,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  // Vite root = client
   root: path.resolve(__dirname, "client"),
 
   plugins: [react()],
@@ -15,12 +14,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client/src"),
-      "@shared": path.resolve(__dirname, "client/src/shared"), // ✅ FIX
+      // ❌ @shared সম্পূর্ণ বাদ
     },
   },
 
   build: {
-    outDir: path.resolve(__dirname, "dist/public"), // ✅ recommended
+    outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
   },
 
