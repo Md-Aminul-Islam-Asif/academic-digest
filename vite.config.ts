@@ -11,12 +11,13 @@ export default defineConfig({
 
   plugins: [react()],
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "client/src"),
-      // ❌ @shared সম্পূর্ণ বাদ
-    },
+ resolve: {
+  alias: {
+    "@": path.resolve(__dirname, "src"),
+    "@shared": path.resolve(__dirname, "src/shared"),
   },
+},
+
 
   build: {
     outDir: path.resolve(__dirname, "dist"),
