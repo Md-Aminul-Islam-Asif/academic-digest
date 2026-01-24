@@ -218,7 +218,7 @@
 //   );
 // }
 import { useState } from "react";
-import { Shell } from "@/components/layout/Shell";
+import { Shell } from "@/components/layout/shell";
 import { useDiscounts, useCreateDiscount } from "@/hooks/use-misc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

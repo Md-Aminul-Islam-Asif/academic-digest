@@ -1,4 +1,4 @@
-import { Shell } from "@/components/layout/Shell";
+import { Shell } from "@/components/layout/shell";
 import { useCreateFeedback } from "@/hooks/use-misc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

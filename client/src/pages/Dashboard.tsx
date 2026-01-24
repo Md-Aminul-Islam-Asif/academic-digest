@@ -1,4 +1,4 @@
-import { Shell } from "@/components/layout/Shell";
+import { Shell } from "@/components/layout/shell";
 import { useStats } from "@/hooks/use-misc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Book, Users, CheckCircle, BookOpen } from "lucide-react";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shell } from "@/components/layout/Shell";
+import { Shell } from "@/components/layout/shell";
 import {
   useTransactions,
   useIssueBook,
