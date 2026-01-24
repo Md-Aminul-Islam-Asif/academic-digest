@@ -192,33 +192,36 @@
 import { useState } from "react";
 import { Shell } from "@/components/layout/shell";
 
-import { useBooks, useCreateBook, useDeleteBook } from "../hooks/use-books";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// hooks (relative is SAFE)
 import {
+  useBooks,
+  useCreateBook,
+  useDeleteBook,
+} from "../hooks/use-books";
+
+import {
+  Button,
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+  Label,
+} from "@/components/ui";
+
 import { Plus, Search, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// ✅ FIXED IMPORT (IMPORTANT)
+// ✅ schema import (client/src/shared)
 import { insertBookSchema, type InsertBook } from "@/shared/routes";
-
-import { Label } from "@/components/ui/label";
 
 export default function Books() {
   const { data: books, isLoading } = useBooks();
@@ -237,7 +240,7 @@ export default function Books() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
+            <h1 className="text-3xl font-display font-bold">
               Books Catalog
             </h1>
             <p className="text-muted-foreground">
@@ -248,10 +251,10 @@ export default function Books() {
         </div>
 
         {/* Search */}
-        <div className="flex items-center gap-2 max-w-sm bg-background border border-border rounded-md px-3 py-2 shadow-sm">
+        <div className="flex items-center gap-2 max-w-sm border rounded-md px-3 py-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
-            className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent outline-none text-sm"
             placeholder="Search by title or author..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -259,9 +262,9 @@ export default function Books() {
         </div>
 
         {/* Table */}
-        <div className="border border-border rounded-lg overflow-hidden shadow-sm bg-card">
+        <div className="border rounded-lg overflow-hidden">
           <Table>
-            <TableHeader className="bg-muted/30">
+            <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Author</TableHead>
@@ -275,19 +278,13 @@ export default function Books() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-8 text-muted-foreground"
-                  >
-                    Loading books...
+                  <TableCell colSpan={6} className="text-center py-8">
+                    Loading books…
                   </TableCell>
                 </TableRow>
               ) : filteredBooks?.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-8 text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="text-center py-8">
                     No books found.
                   </TableCell>
                 </TableRow>
@@ -298,36 +295,19 @@ export default function Books() {
                       {book.title}
                     </TableCell>
                     <TableCell>{book.author}</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                        {book.category}
-                      </span>
-                    </TableCell>
+                    <TableCell>{book.category}</TableCell>
                     <TableCell className="text-center">
                       {book.quantity}
                     </TableCell>
                     <TableCell className="text-center">
-                      <span
-                        className={
-                          book.available > 0
-                            ? "text-green-600 font-medium"
-                            : "text-destructive font-medium"
-                        }
-                      >
-                        {book.available}
-                      </span>
+                      {book.available}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => {
-                          if (
-                            confirm(
-                              "Are you sure you want to delete this book?"
-                            )
-                          ) {
+                          if (confirm("Delete this book?")) {
                             deleteBook.mutate(book.id);
                           }
                         }}
@@ -379,7 +359,7 @@ function AddBookDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
+        <Button className="gap-2">
           <Plus className="h-4 w-4" /> Add Book
         </Button>
       </DialogTrigger>
@@ -419,7 +399,7 @@ function AddBookDialog() {
             />
           </div>
 
-          <div className="pt-2 flex justify-end gap-2">
+          <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
@@ -428,7 +408,7 @@ function AddBookDialog() {
               Cancel
             </Button>
             <Button type="submit" disabled={createBook.isPending}>
-              {createBook.isPending ? "Adding..." : "Add Book"}
+              {createBook.isPending ? "Adding…" : "Add Book"}
             </Button>
           </div>
         </form>
@@ -436,3 +416,4 @@ function AddBookDialog() {
     </Dialog>
   );
 }
+

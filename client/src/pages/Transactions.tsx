@@ -1,48 +1,49 @@
 import { useState } from "react";
 import { Shell } from "@/components/layout/shell";
-import { useTransactions } from "../hooks/use-transactions";
+
+import {
+  useTransactions,
+  useIssueBook,
+  useReturnBook,
+} from "../hooks/use-transactions";
 import { useBooks } from "../hooks/use-books";
 import { useStudents } from "../hooks/use-misc";
 import { useToast } from "../hooks/use-toast";
 
-
-
-import { Button } from "@/components/ui/button";
 import {
+  Button,
+  Label,
+  Calendar,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Plus, RotateCcw, Clock, BookOpen, User } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui";
+
+import { Plus, RotateCcw, Clock, BookOpen, User } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 
-
 /* =========================
-   Utils (🔥 SAFE)
+   Utils
    ========================= */
 function safeDate(value: any) {
   if (!value) return "—";
@@ -75,7 +76,6 @@ export default function Transactions() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        {/* Header */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">Transactions</h1>
@@ -86,7 +86,6 @@ export default function Transactions() {
           <IssueBookDialog />
         </div>
 
-        {/* Table */}
         <div className="glass-card overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/40">
@@ -108,7 +107,7 @@ export default function Transactions() {
                     Loading transactions...
                   </TableCell>
                 </TableRow>
-              ) : !transactions || transactions.length === 0 ? (
+              ) : !transactions?.length ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     No transactions found
@@ -116,11 +115,9 @@ export default function Transactions() {
                 </TableRow>
               ) : (
                 transactions.map((t: any) => {
-                  // 🔥 MOST IMPORTANT FIX
                   const tx = t.transaction ?? t;
                   const book = t.book ?? {};
                   const user = t.user ?? {};
-
                   if (!tx?.id) return null;
 
                   return (
@@ -128,28 +125,20 @@ export default function Transactions() {
                       <TableCell className="font-mono text-xs">
                         #{tx.id}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {book.title ?? "—"}
-                      </TableCell>
+                      <TableCell>{book.title ?? "—"}</TableCell>
                       <TableCell>
-                        <div>
-                          <p>{user.name ?? "—"}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {user.email ?? ""}
-                          </p>
-                        </div>
+                        <p>{user.name ?? "—"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {user.email ?? ""}
+                        </p>
                       </TableCell>
                       <TableCell>{safeDate(tx.issueDate)}</TableCell>
                       <TableCell>{safeDate(tx.dueDate)}</TableCell>
                       <TableCell>
                         {tx.status === "issued" ? (
-                          <span className="px-2 py-0.5 text-xs rounded bg-amber-100 text-amber-800">
-                            Issued
-                          </span>
+                          <span className="badge-warning">Issued</span>
                         ) : (
-                          <span className="px-2 py-0.5 text-xs rounded bg-green-100 text-green-800">
-                            Returned
-                          </span>
+                          <span className="badge-success">Returned</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -157,7 +146,9 @@ export default function Transactions() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => returnBook.mutate(tx.id)}
+                            onClick={() =>
+                              returnBook.mutate(tx.id)
+                            }
                           >
                             <RotateCcw className="h-3 w-3 mr-1" />
                             Return
@@ -177,7 +168,7 @@ export default function Transactions() {
 }
 
 /* =========================
-   Issue Book Dialog (🔥 UX FIXED)
+   Issue Book Dialog
    ========================= */
 function IssueBookDialog() {
   const [open, setOpen] = useState(false);
@@ -195,19 +186,9 @@ function IssueBookDialog() {
   const onSubmit = (data: IssueForm) => {
     issueBook.mutate(data, {
       onSuccess: () => {
-        toast({
-          title: "Book Issued",
-          description: "Transaction added successfully",
-        });
+        toast({ title: "Book Issued" });
         form.reset();
         setOpen(false);
-      },
-      onError: (err: any) => {
-        toast({
-          variant: "destructive",
-          title: "Issue Failed",
-          description: err.message,
-        });
       },
     });
   };
@@ -216,12 +197,11 @@ function IssueBookDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Issue Book
+          <Plus className="h-4 w-4" /> Issue Book
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="glass-card">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Issue Book</DialogTitle>
         </DialogHeader>
@@ -240,17 +220,14 @@ function IssueBookDialog() {
                     <SelectValue placeholder="Select student" />
                   </SelectTrigger>
                   <SelectContent>
-                    {students?.length ? (
-                      students.map((s) => (
-                        <SelectItem key={s.id} value={String(s.id)}>
-                          {s.name} ({s.email})
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No students found
-                      </div>
-                    )}
+                    {students?.map((s) => (
+                      <SelectItem
+                        key={s.id}
+                        value={String(s.id)}
+                      >
+                        {s.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -267,20 +244,17 @@ function IssueBookDialog() {
                 <Select onValueChange={field.onChange}>
                   <SelectTrigger>
                     <BookOpen className="h-4 w-4 mr-2 opacity-50" />
-                    <SelectValue placeholder="Select available book" />
+                    <SelectValue placeholder="Select book" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableBooks.length ? (
-                      availableBooks.map((b) => (
-                        <SelectItem key={b.id} value={String(b.id)}>
-                          {b.title} ({b.available} left)
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No books available
-                      </div>
-                    )}
+                    {availableBooks.map((b) => (
+                      <SelectItem
+                        key={b.id}
+                        value={String(b.id)}
+                      >
+                        {b.title}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -296,15 +270,11 @@ function IssueBookDialog() {
               render={({ field }) => (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full justify-between"
-                    >
+                    <Button variant="outline" className="w-full">
                       {field.value
                         ? format(field.value, "PPP")
-                        : "Pick a due date"}
-                      <Clock className="h-4 w-4 opacity-50" />
+                        : "Pick date"}
+                      <Clock className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="p-0">
@@ -320,8 +290,12 @@ function IssueBookDialog() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={issueBook.isPending}>
-            {issueBook.isPending ? "Issuing..." : "Confirm Issue"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={issueBook.isPending}
+          >
+            Confirm Issue
           </Button>
         </form>
       </DialogContent>

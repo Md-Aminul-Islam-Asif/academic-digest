@@ -141,24 +141,24 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../hooks/use-auth";
-
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
+  Button,
+  Input,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+  Label,
+} from "@/components/ui";
+
 import { BookOpen } from "lucide-react";
 
-// ✅ FIXED IMPORT
-import { insertUserSchema } from "../shared/routes";
-
+// ✅ CORRECT SHARED IMPORT
+import { insertUserSchema } from "@/shared/routes";
 
 const registerSchema = insertUserSchema
   .extend({
@@ -215,7 +215,10 @@ export default function Register() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input id="name" {...form.register("name")} />
@@ -231,8 +234,13 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="studentId">Student ID (Optional)</Label>
-                <Input id="studentId" {...form.register("studentId")} />
+                <Label htmlFor="studentId">
+                  Student ID (Optional)
+                </Label>
+                <Input
+                  id="studentId"
+                  {...form.register("studentId")}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -258,7 +266,9 @@ export default function Register() {
                 className="w-full"
                 disabled={isRegistering}
               >
-                {isRegistering ? "Creating Account..." : "Register"}
+                {isRegistering
+                  ? "Creating Account..."
+                  : "Register"}
               </Button>
             </form>
           </CardContent>
