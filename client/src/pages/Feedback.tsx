@@ -13,7 +13,7 @@ import {
 import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertFeedbackSchema, type InsertFeedback } from "@shared/routes";
+import { insertFeedbackSchema, type InsertFeedback } from "../shared/routes";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";

@@ -100,12 +100,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 
-// ✅ CORRECT IMPORT (alias based)
-import {
-  api,
-  type LoginRequest,
-  type RegisterRequest,
-} from "@shared/routes";
+import { api, type LoginRequest, type RegisterRequest } from "../shared/routes";
+
 
 export function useAuth() {
   const queryClient = useQueryClient();

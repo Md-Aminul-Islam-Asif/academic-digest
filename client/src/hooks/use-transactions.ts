@@ -88,7 +88,7 @@
 //   });
 // }
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type InsertTransaction } from "@shared/routes";
+import { api, buildUrl, type InsertTransaction } from "../shared/routes";
 
 /* =========================
    Fetch Transactions

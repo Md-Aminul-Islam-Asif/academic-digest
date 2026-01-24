@@ -74,7 +74,7 @@
 //   });
 // }
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type InsertBook } from "@shared/routes";
+import { api, buildUrl, type InsertBook } from "../shared/routes";
 
 /* =========================
    Fetch Books

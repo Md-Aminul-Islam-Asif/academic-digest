@@ -156,7 +156,8 @@ import { Label } from "@/components/ui/label";
 import { BookOpen } from "lucide-react";
 
 // ✅ FIXED IMPORT
-import { insertUserSchema } from "@shared/routes";
+import { insertUserSchema } from "../shared/routes";
+
 
 const registerSchema = insertUserSchema
   .extend({

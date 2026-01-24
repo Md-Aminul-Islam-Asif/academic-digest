@@ -66,7 +66,7 @@
 //   });
 // }
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertDiscount, type InsertFeedback } from "@shared/routes";
+import { api, type InsertDiscount, type InsertFeedback } from "../shared/routes";
 
 /* =========================
    Stats
